@@ -23,9 +23,20 @@ namespace SharperDevices
         List<UInt64> AddressesOfDiscoveredBLEAdvPackets = new List<UInt64>();
         BluetoothLEAdvertisementWatcher BLEAdvWatcher;
 
+        private List<BluetoothLEDevice> bluetoothLEDevices;
+        public List<BluetoothLEDevice> BluetoothDevices 
+        {
+            get { return null; }
+            set {; }
+        }
+
+
 
         public SharperBlue()
         {
+            BLEAdvWatcher = new BluetoothLEAdvertisementWatcher();
+            _BluetoothLEDevices = new List<BluetoothLEDevice>();
+
             var selector = BluetoothLEDevice.GetDeviceSelector();
             DeviceWatcher = DeviceInformation.CreateWatcher(selector);
             DeviceWatcher.EnumerationCompleted += DeviceWatcher_EnumerationCompleted;
@@ -34,7 +45,7 @@ namespace SharperDevices
             DeviceWatcher.Stopped += DeviceWatcher_Stopped;
 
 
-            BluetoothLEAdvertisementWatcher BLEAdvWatcher = new BluetoothLEAdvertisementWatcher();
+
 
             BLEAdvWatcher.Received += BLEAdvWatcher_Received;
             BLEAdvWatcher.Stopped += BLEAdvWatcher_Stopped;
@@ -60,7 +71,7 @@ namespace SharperDevices
         private async void BLEAdvWatcher_Received(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
         {
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
-            () =>
+            async () =>
             {
                 try
                 {
@@ -78,6 +89,9 @@ namespace SharperDevices
                         WriteLine($"Advertisement Manf. Data Count:    {args?.Advertisement?.ManufacturerData.Count}");
                         WriteLine($"Advertisement ServiceUUIDs Count:  {args?.Advertisement?.ServiceUuids.Count}");
                         Write("\n\n");
+                        var discoveredBLEDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
+                        BluetoothLEDevices.Add(discoveredBLEDevice);
+                        WriteLine(BluetoothLEDevices[0].Name);
                     }
 
                 }
