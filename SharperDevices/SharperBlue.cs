@@ -7,6 +7,7 @@ using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using System.Threading;
 using System.Collections.Generic;
 using Windows.UI.Core;
+using static Windows.Security.Cryptography.CryptographicBuffer;
 
 namespace SharperDevices
 {
@@ -23,19 +24,28 @@ namespace SharperDevices
         List<UInt64> AddressesOfDiscoveredBLEAdvPackets = new List<UInt64>();
         BluetoothLEAdvertisementWatcher BLEAdvWatcher;
 
-        private List<BluetoothLEDevice> bluetoothLEDevices;
-        public List<BluetoothLEDevice> BluetoothDevices 
+        private List<BluetoothLEDevice> bluetoothLEDevices = new List<BluetoothLEDevice>();
+        public void addDiscoveredBLEDeviceToList(BluetoothLEDevice device)
         {
-            get { return null; }
-            set {; }
+            bluetoothLEDevices.Add(device);
         }
 
+        public BluetoothLEDevice getDiscoveredBLEDeviceFromList(UInt16 deviceNumber)
+        {
+            if(bluetoothLEDevices[deviceNumber] != null)
+            {
+                return bluetoothLEDevices[deviceNumber];
+            } else
+            {
+                return null;
+            }
+        }
 
 
         public SharperBlue()
         {
             BLEAdvWatcher = new BluetoothLEAdvertisementWatcher();
-            _BluetoothLEDevices = new List<BluetoothLEDevice>();
+            //_BluetoothLEDevices = new List<BluetoothLEDevice>();
 
             var selector = BluetoothLEDevice.GetDeviceSelector();
             DeviceWatcher = DeviceInformation.CreateWatcher(selector);
@@ -77,21 +87,32 @@ namespace SharperDevices
                 {
                     if (!AddressesOfDiscoveredBLEAdvPackets.Contains(args.BluetoothAddress))
                     {
+                        WriteLine("#####################################################################");
                         AddressesOfDiscoveredBLEAdvPackets.Add(args.BluetoothAddress);
                         WriteLine($"BluetoothAddress:                  {args?.BluetoothAddress}");
                         WriteLine($"Count of ServiceUUID:              {args?.Advertisement?.ServiceUuids?.Count}");
                         WriteLine($"Advertisement type:                {args?.AdvertisementType}");
                         WriteLine($"RawSignalStrengthInDBm:            {args?.RawSignalStrengthInDBm}");
                         WriteLine($"Timestamp:                         {args?.Timestamp}");
-                        WriteLine($"Advertisement DataSections Count:  {args?.Advertisement?.DataSections?.Count}");
+                        for(int i = 0; i < args?.Advertisement?.DataSections.Count;i++)
+                        {
+                            WriteLine($"Advertisement DataSections #{i}:     {EncodeToHexString(args?.Advertisement?.DataSections[i].Data)}");
+                        }
                         WriteLine($"Advertisement Flags Value:         {args?.Advertisement?.Flags}");
                         WriteLine($"Advertisement LocalName:           {args?.Advertisement?.LocalName}");
-                        WriteLine($"Advertisement Manf. Data Count:    {args?.Advertisement?.ManufacturerData.Count}");
+                        for (int i = 0; i < args?.Advertisement?.ManufacturerData.Count; i++)
+                        {
+                            WriteLine($"Advertisement DataSections #{i}:     {EncodeToHexString(args?.Advertisement?.ManufacturerData[i].Data)}");
+                        }
                         WriteLine($"Advertisement ServiceUUIDs Count:  {args?.Advertisement?.ServiceUuids.Count}");
-                        Write("\n\n");
-                        var discoveredBLEDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
-                        BluetoothLEDevices.Add(discoveredBLEDevice);
-                        WriteLine(BluetoothLEDevices[0].Name);
+                        if(args.Advertisement.ServiceUuids.Count > 0)
+                        {
+                            WriteLine("Services of Device -----------------------------------------------");
+                            var discoveredBLEDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
+                            addDiscoveredBLEDeviceToList(discoveredBLEDevice);
+                            WriteLine($"Device name:                       {getDiscoveredBLEDeviceFromList(0).Name}");
+                        }
+                        WriteLine("#####################################################################");
                     }
 
                 }
