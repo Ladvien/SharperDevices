@@ -54,13 +54,19 @@ namespace SharperDevices
             DeviceWatcher.Updated += DeviceWatcherUpdated;
             DeviceWatcher.Stopped += DeviceWatcher_Stopped;
 
-
-
-
             BLEAdvWatcher.Received += BLEAdvWatcher_Received;
             BLEAdvWatcher.Stopped += BLEAdvWatcher_Stopped;
+           
 
             BLEAdvWatcher.ScanningMode = BluetoothLEScanningMode.Active;
+            WriteLine("#####################################################################");
+            WriteLine($"Starting BLE Adv Watcher...");
+            WriteLine($"Scanning Mode:                     {BLEAdvWatcher.ScanningMode}");
+            WriteLine($"Status:                            {BLEAdvWatcher.Status}");
+            WriteLine($"MinSamplingInterval:               {BLEAdvWatcher.MinSamplingInterval}");
+            WriteLine($"MaxSamplingInterval:               {BLEAdvWatcher.MaxSamplingInterval}");
+            WriteLine($"MinOutOfRangeTimeout:              {BLEAdvWatcher.MinOutOfRangeTimeout}");
+            WriteLine($"MaxOutOfRangeTimeout:              {BLEAdvWatcher.MaxOutOfRangeTimeout}");
 
             BLEAdvWatcher.Start();
             DeviceWatcher.Start();
@@ -80,6 +86,7 @@ namespace SharperDevices
 
         private async void BLEAdvWatcher_Received(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
         {
+            
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
             async () =>
             {
@@ -88,6 +95,7 @@ namespace SharperDevices
                     if (!AddressesOfDiscoveredBLEAdvPackets.Contains(args.BluetoothAddress))
                     {
                         WriteLine("#####################################################################");
+                        WriteLine($"Scanning Mode:                     {BLEAdvWatcher.ScanningMode}");
                         AddressesOfDiscoveredBLEAdvPackets.Add(args.BluetoothAddress);
                         WriteLine($"BluetoothAddress:                  {args?.BluetoothAddress}");
                         WriteLine($"Count of ServiceUUID:              {args?.Advertisement?.ServiceUuids?.Count}");
@@ -104,23 +112,31 @@ namespace SharperDevices
                         {
                             WriteLine($"Advertisement DataSections #{i}:     {EncodeToHexString(args?.Advertisement?.ManufacturerData[i].Data)}");
                         }
-                        WriteLine($"Advertisement ServiceUUIDs Count:  {args?.Advertisement?.ServiceUuids.Count}");
-                        if(args.Advertisement.ServiceUuids.Count > 0)
+                        for (int i = 0; i < args?.Advertisement?.ServiceUuids.Count; i++)
                         {
+                            WriteLine($"Advertisement ServiceUUIDs #{i}:     {args?.Advertisement?.ServiceUuids[i]}");
+                        }
+                        //if(args.Advertisement.ServiceUuids.Count > 0)
+                        //{
                             WriteLine("Services of Device -----------------------------------------------");
                             var discoveredBLEDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
                             addDiscoveredBLEDeviceToList(discoveredBLEDevice);
-                            WriteLine($"Device name:                       {getDiscoveredBLEDeviceFromList(0).Name}");
-                        }
+                            WriteLine($"Device name:                       {getDiscoveredBLEDeviceFromList(0).DeviceInformation.Name}");                            
+                        //}
                         WriteLine("#####################################################################");
                     }
 
                 }
-                catch (Exception ex)
+                catch (System.IO.FileNotFoundException ex)
                 {
                     WriteLine($"Failed to open service.\nException: {ex.Message}");
                 }
             });
+        }
+
+        private void DiscoveredBLEDevice_GattServicesChanged(BluetoothLEDevice sender, object args)
+        {
+            throw new NotImplementedException();
         }
 
         private void DeviceWatcher_EnumerationCompleted(DeviceWatcher sender, object args)
