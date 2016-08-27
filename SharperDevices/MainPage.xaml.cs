@@ -25,7 +25,8 @@ namespace SharperDevices
         public MainPage()
         {
             this.InitializeComponent();
-            SharperBlue sb = new SharperBlue();
+            //SharperBlueAdvertisement sb = new SharperBlueAdvertisement();
+            SharperBluetoothLE sBLE = new SharperBluetoothLE();
         }
     }
 }

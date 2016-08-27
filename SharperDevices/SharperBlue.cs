@@ -13,7 +13,59 @@ namespace SharperDevices
 {
 
 
-    public class SharperBlue
+    public class SharperBluetoothLE
+    {
+
+        DeviceWatcher BluetoothLEWatcher;
+
+        public SharperBluetoothLE()
+        {
+            var BLESelector = BluetoothLEDevice.GetDeviceSelector();
+            DeviceWatcher BLEWatcher = DeviceInformation.CreateWatcher(BLESelector);
+            BLEWatcher.Added += BLEWatcher_Added;
+            BLEWatcher.Removed += BLEWatcher_Removed;
+            BLEWatcher.Updated += BLEWatcher_Updated;
+            BLEWatcher.Stopped += BLEWatcher_Stopped;
+            BLEWatcher.EnumerationCompleted += BLEWatcher_EnumerationCompleted;
+            BLEWatcher.Start();
+
+            var BluetoothSelector = BluetoothDevice.GetDeviceSelector();
+            DeviceWatcher BluetoothWatcher = DeviceInformation.CreateWatcher(BluetoothSelector);
+            BluetoothWatcher.Added += BLEWatcher_Added;
+            BluetoothWatcher.Removed += BLEWatcher_Removed;
+            BluetoothWatcher.Updated += BLEWatcher_Updated;
+            BluetoothWatcher.Stopped += BLEWatcher_Stopped;
+            BluetoothWatcher.EnumerationCompleted += BLEWatcher_EnumerationCompleted;
+            BluetoothWatcher.Start();
+        }
+
+        private void BLEWatcher_EnumerationCompleted(DeviceWatcher sender, object args)
+        {
+            WriteLine("Enum complete");
+        }
+
+        private void BLEWatcher_Stopped(DeviceWatcher sender, object args)
+        {
+            WriteLine("Stopped");
+        }
+
+        private void BLEWatcher_Updated(DeviceWatcher sender, DeviceInformationUpdate args)
+        {
+            WriteLine("Updated");
+        }
+
+        private void BLEWatcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
+        {
+            WriteLine("Removed");
+        }
+
+        private void BLEWatcher_Added(DeviceWatcher sender, DeviceInformation args)
+        {
+            WriteLine("Added");
+        }
+    }
+
+    public class SharperBlueAdvertisement
     {
 
         //public delegate List<string> DiscoveredBLEDevice(List<string> deviceIDs);
@@ -42,7 +94,7 @@ namespace SharperDevices
         }
 
 
-        public SharperBlue()
+        public SharperBlueAdvertisement()
         {
             BLEAdvWatcher = new BluetoothLEAdvertisementWatcher();
             //_BluetoothLEDevices = new List<BluetoothLEDevice>();
@@ -56,17 +108,18 @@ namespace SharperDevices
 
             BLEAdvWatcher.Received += BLEAdvWatcher_Received;
             BLEAdvWatcher.Stopped += BLEAdvWatcher_Stopped;
-           
+
+            BLEAdvWatcher.SignalStrengthFilter.SamplingInterval = new TimeSpan(0, 0, 0, 0, 1210); // Overrides other sampling properties?
 
             BLEAdvWatcher.ScanningMode = BluetoothLEScanningMode.Active;
             WriteLine("#####################################################################");
             WriteLine($"Starting BLE Adv Watcher...");
-            WriteLine($"Scanning Mode:                     {BLEAdvWatcher.ScanningMode}");
             WriteLine($"Status:                            {BLEAdvWatcher.Status}");
             WriteLine($"MinSamplingInterval:               {BLEAdvWatcher.MinSamplingInterval}");
             WriteLine($"MaxSamplingInterval:               {BLEAdvWatcher.MaxSamplingInterval}");
             WriteLine($"MinOutOfRangeTimeout:              {BLEAdvWatcher.MinOutOfRangeTimeout}");
             WriteLine($"MaxOutOfRangeTimeout:              {BLEAdvWatcher.MaxOutOfRangeTimeout}");
+            WriteLine($"SamplingInterval:                  {BLEAdvWatcher.SignalStrengthFilter.SamplingInterval}");
 
             BLEAdvWatcher.Start();
             DeviceWatcher.Start();
