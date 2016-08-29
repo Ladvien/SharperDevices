@@ -1,1 +1,1 @@
-C:\Users\cthom\Dropbox\SharperDevices\SharperDevices\SharperDevices.csproj;x64
+C:\Users\Echo\Dropbox\SharperDevices\SharperDevices\SharperDevices.csproj;x64

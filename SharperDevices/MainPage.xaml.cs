@@ -26,7 +26,13 @@ namespace SharperDevices
         {
             this.InitializeComponent();
             //SharperBlueAdvertisement sb = new SharperBlueAdvertisement();
+
+            SharperDevices sd = new SharperDevices();
             SharperBluetoothLE sBLE = new SharperBluetoothLE();
+            SharperBluetoothClassic sBC = new SharperBluetoothClassic();
+            //sd.OpenWifiSettings();
+            ShaperWiFi sWiFi = new ShaperWiFi();
+            
         }
     }
 }
