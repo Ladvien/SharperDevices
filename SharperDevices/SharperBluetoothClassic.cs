@@ -52,7 +52,7 @@ namespace SharperDevices
         {
             // 1. Print out all the Classic Bluetooth Device info.
 
-            WriteLine("####### Start BluetoothClassic Device Found #######################################################");
+            WriteLine("####### Start BluetoothBLE Device Found ###########################################################");
             WriteLine($"        ID:                                                {args.Id}");
             WriteLine($"        Name:                                              {args.Name}");
             WriteLine($"        CanPair:                                           {args.Pairing.CanPair}");
@@ -64,7 +64,7 @@ namespace SharperDevices
             WriteLine($"        EnclosureLocation.InLid:                           {args?.EnclosureLocation?.InLid}");
             WriteLine($"        EnclosureLocation.Panel:                           {args?.EnclosureLocation?.Panel}");
             WriteLine($"        EnclosureLocation.RotationAngleInDegreesClockwise: {args?.EnclosureLocation?.RotationAngleInDegreesClockwise}");
-            WriteLine("####### End BluetoothClassic Device Found #########################################################");
+            WriteLine("####### Start BluetoothBLE Device Found ###########################################################");
         }
 
 

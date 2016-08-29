@@ -50,7 +50,22 @@ namespace SharperDevices
 
         private void BLEWatcher_Added(DeviceWatcher sender, DeviceInformation args)
         {
-            WriteLine("Added");
+            // 1. Print out all the Classic Bluetooth Device info.
+
+            WriteLine("####### Start BluetoothClassic Device Found #######################################################");
+            WriteLine($"        ID:                                                {args.Id}");
+            WriteLine($"        Name:                                              {args.Name}");
+            WriteLine($"        CanPair:                                           {args.Pairing.CanPair}");
+            WriteLine($"        Pairing Protection Level:                          {args.Pairing.ProtectionLevel}");
+            WriteLine($"        IsPaired:                                          {args.Pairing.IsPaired}");
+            WriteLine($"        Kind:                                              {args.Kind}");
+            for (int i = 0; i < args.Properties.Count; i++) { WriteLine($"        Properties #{i}:                                     {args.Properties.Values.ToArray()[i]}"); }
+            WriteLine($"        EnclosureLocation.InDock:                          {args?.EnclosureLocation?.InDock}");
+            WriteLine($"        EnclosureLocation.InLid:                           {args?.EnclosureLocation?.InLid}");
+            WriteLine($"        EnclosureLocation.Panel:                           {args?.EnclosureLocation?.Panel}");
+            WriteLine($"        EnclosureLocation.RotationAngleInDegreesClockwise: {args?.EnclosureLocation?.RotationAngleInDegreesClockwise}");
+            WriteLine("####### End BluetoothClassic Device Found #########################################################");
         }
     }
 }
+
