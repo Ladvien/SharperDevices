@@ -22,17 +22,53 @@ namespace SharperDevices
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        SharperDevices deviceFactory;
+        List<SharperDevices> sharperDevices;
+
+
+
         public MainPage()
         {
             this.InitializeComponent();
-            //SharperBlueAdvertisement sb = new SharperBlueAdvertisement();
+            sharperDevices = new List<SharperDevices>();
 
-            SharperDevices sd = new SharperDevices();
-            SharperBluetoothLE sBLE = new SharperBluetoothLE();
-            SharperBluetoothClassic sBC = new SharperBluetoothClassic();
-            //sd.OpenWifiSettings();
-            ShaperWiFi sWiFi = new ShaperWiFi();
-            
+            SharperDevicesMaker sdFactory = new SharperDevicesMaker();
+
+            SharperBluetoothClassic btClassicDevice = sdFactory.SharperDevicesFactory(SharperDevicesMaker.DeviceType.BluetoothClassic) as SharperBluetoothClassic;
+            SharperBluetoothLE btLEDevice = sdFactory.SharperDevicesFactory(SharperDevicesMaker.DeviceType.BluetoothBLE) as SharperBluetoothLE;
+            SharperWiFi usbUartDevice = sdFactory.SharperDevicesFactory(SharperDevicesMaker.DeviceType.WiFi) as SharperWiFi;
+            sharperDevices.Add(btClassicDevice);
+            sharperDevices.Add(btLEDevice);
+            sharperDevices.Add(usbUartDevice);
+
+        }
+
+
+        private void BluetoothSettings_Click(object sender, RoutedEventArgs e)
+        {
+            /*
+            if (sd != null)
+            {
+                //sd.OpenBluetoothSettings();
+            }
+            else
+            {
+
+            }*/
+        }
+
+        private void WiFiSettings_Click(object sender, RoutedEventArgs e)
+        {
+            /*
+            if (sd != null)
+            {
+                sd.OpenWifiSettings();
+            }
+            else
+            {
+
+            }
+            */
         }
     }
 }

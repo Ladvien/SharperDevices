@@ -9,11 +9,11 @@ using static System.Diagnostics.Debug;
 
 namespace SharperDevices
 {
-    class ShaperWiFi
+    class SharperWiFi: SharperDevices, ISharperDevices
     {
         DeviceWatcher WiFiWatcher;
 
-        public ShaperWiFi()
+        public SharperWiFi()
         {
             var wifiSelector = WiFiDirectDevice.GetDeviceSelector();
             WiFiWatcher = DeviceInformation.CreateWatcher(wifiSelector);
@@ -47,6 +47,21 @@ namespace SharperDevices
         }
 
         private void WiFiWatcher_Added(DeviceWatcher sender, DeviceInformation args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Connect()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Disconnect()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ClearDevices()
         {
             throw new NotImplementedException();
         }

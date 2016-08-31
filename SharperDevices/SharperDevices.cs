@@ -7,9 +7,8 @@ using Windows.System;
 
 namespace SharperDevices
 {
-    class SharperDevices
+    public abstract class SharperDevices
     {
-
 
         public async void OpenBluetoothSettings()
         {

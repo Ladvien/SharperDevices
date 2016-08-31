@@ -95,15 +95,17 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ISharperDevices.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShaperWiFi.cs" />
+    <Compile Include="SharperWiFi.cs" />
     <Compile Include="SharperBluetoothAdvertisement.cs" />
     <Compile Include="SharperBluetoothClassic.cs" />
     <Compile Include="SharperBluetoothLE.cs" />
     <Compile Include="SharperDevices.cs" />
+    <Compile Include="SharperDevicesMaker.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
