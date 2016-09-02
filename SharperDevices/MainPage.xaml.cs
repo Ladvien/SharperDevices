@@ -22,14 +22,21 @@ namespace SharperDevices
     /// </summary>
     public sealed partial class MainPage : Page
     {
+<<<<<<< Updated upstream
         SharperDevices deviceFactory;
         List<SharperDevices> sharperDevices;
 
 
+=======
+        SharperDevices sd = new SharperDevices();
+        SharperBluetoothLE sBLE = new SharperBluetoothLE();
+        SharperBluetoothClassic sBC = new SharperBluetoothClassic();
+>>>>>>> Stashed changes
 
         public MainPage()
         {
             this.InitializeComponent();
+<<<<<<< Updated upstream
             sharperDevices = new List<SharperDevices>();
 
             SharperDevicesMaker sdFactory = new SharperDevicesMaker();
@@ -41,25 +48,44 @@ namespace SharperDevices
             sharperDevices.Add(btLEDevice);
             sharperDevices.Add(usbUartDevice);
 
+=======
+
+            //sd.OpenWifiSettings();
+            ShaperWiFi sWiFi = new ShaperWiFi();
+            sd = new SharperDevices();
+>>>>>>> Stashed changes
         }
 
 
         private void BluetoothSettings_Click(object sender, RoutedEventArgs e)
         {
+<<<<<<< Updated upstream
             /*
             if (sd != null)
             {
                 //sd.OpenBluetoothSettings();
+=======
+            if (sd != null)
+            {
+                sd.OpenBluetoothSettings();
+>>>>>>> Stashed changes
             }
             else
             {
 
+<<<<<<< Updated upstream
             }*/
+=======
+            }
+>>>>>>> Stashed changes
         }
 
         private void WiFiSettings_Click(object sender, RoutedEventArgs e)
         {
+<<<<<<< Updated upstream
             /*
+=======
+>>>>>>> Stashed changes
             if (sd != null)
             {
                 sd.OpenWifiSettings();
@@ -68,7 +94,10 @@ namespace SharperDevices
             {
 
             }
+<<<<<<< Updated upstream
             */
+=======
+>>>>>>> Stashed changes
         }
     }
 }

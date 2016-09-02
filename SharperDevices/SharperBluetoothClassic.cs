@@ -13,7 +13,11 @@ namespace SharperDevices
 {
 
 
+<<<<<<< Updated upstream
     public class SharperBluetoothClassic: SharperDevices, ISharperDevices
+=======
+    public class SharperBluetoothClassic: ISharperDevices   
+>>>>>>> Stashed changes
     {
         DeviceWatcher BluetoothClassicWatcher;
 
@@ -70,6 +74,7 @@ namespace SharperDevices
                 WriteLine($"        EnclosureLocation.RotationAngleInDegreesClockwise: {args?.EnclosureLocation?.RotationAngleInDegreesClockwise}");
                 WriteLine("####### Start BluetoothBLE Device Found ###########################################################");
             });
+<<<<<<< Updated upstream
         }
 
         public void Connect()
@@ -86,5 +91,8 @@ namespace SharperDevices
         {
             throw new NotImplementedException();
         }
+=======
+        }
+>>>>>>> Stashed changes
     }
 }

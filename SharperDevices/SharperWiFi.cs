@@ -9,7 +9,11 @@ using static System.Diagnostics.Debug;
 
 namespace SharperDevices
 {
+<<<<<<< Updated upstream:SharperDevices/SharperWiFi.cs
     class SharperWiFi: SharperDevices, ISharperDevices
+=======
+    class ShaperWiFi: ISharperDevices
+>>>>>>> Stashed changes:SharperDevices/ShaperWiFi.cs
     {
         DeviceWatcher WiFiWatcher;
 

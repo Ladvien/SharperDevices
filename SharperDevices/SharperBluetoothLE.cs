@@ -11,7 +11,11 @@ using static System.Diagnostics.Debug;
 
 namespace SharperDevices
 {
+<<<<<<< Updated upstream
     public class SharperBluetoothLE: SharperDevices, ISharperDevices
+=======
+    public class SharperBluetoothLE: ISharperDevices
+>>>>>>> Stashed changes
     {
 
         DeviceWatcher BluetoothLEWatcher;
@@ -69,6 +73,7 @@ namespace SharperDevices
                 WriteLine($"        EnclosureLocation.RotationAngleInDegreesClockwise: {args?.EnclosureLocation?.RotationAngleInDegreesClockwise}");
                 WriteLine("####### End BluetoothClassic Device Found #########################################################");
             });
+<<<<<<< Updated upstream
         }
 
         public void Connect()
@@ -84,6 +89,8 @@ namespace SharperDevices
         public void ClearDevices()
         {
             throw new NotImplementedException();
+=======
+>>>>>>> Stashed changes
         }
     }
 }
