@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
@@ -39,6 +40,10 @@ namespace SharperDevices
             sdWatcher = new SharperDevicesWatcher();
             sdWatcherInfo = new SharperDeviceWatcherInfo();
 
+            // 1. Create a list of Watcher Types
+            // 2. Have SharperDevice create watchers for list of device types.
+            // 3. Start all watchers.
+
             List<SharperDevice.DeviceTypes> watcherTypes = new List<SharperDevice.DeviceTypes>();
             watcherTypes.Add(SharperDevice.DeviceTypes.BluetoothLE);
             watcherTypes.Add(SharperDevice.DeviceTypes.WiFiDirect);
@@ -46,6 +51,16 @@ namespace SharperDevices
             watcherTypes.Add(SharperDevice.DeviceTypes.USBtoUART);
             sdWatcher.CreateWatchers(watcherTypes);
             sdWatcher.Start();
+            Timer(19000);
+            var dictOfFoundDevices = sdWatcher.GetListOfFoundDevices();
+            WriteLine(dictOfFoundDevices.Count);
+
+
+        }
+
+        public async void Timer(Int16 time)
+        {
+            await Task.Delay(time);
         }
     }
 }

@@ -13,10 +13,14 @@ namespace SharperDevices
         public SharperDevice.DeviceTypes DeviceType;
         public string ID;
         public string Name;
+        public bool IsDefault = false;
+        public bool IsEnabled = false;
         public bool CanPair = false;
         public bool IsPaired = false;
         public DevicePairingProtectionLevel ProtectionLevel = DevicePairingProtectionLevel.Default;
         public DeviceInformationKind Kind;
-        public Dictionary<string, object> Properties;
+        public Dictionary<string, object> Properties = new Dictionary<string, object>();
+
+
     }
 }

@@ -76,7 +76,13 @@ namespace SharperDevices
 
         private void Watcher_Updated(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            WriteLine($"Updated {GetDeviceType(sender)}");
+            var deviceType = GetDeviceType(sender);
+            if (DictOfSharperDeviceInfo.ContainsKey(args.Id))
+            {
+                SharperDeviceInfo deviceInfo = new SharperDeviceInfo();
+                UpdateSharperDeviceInfo(deviceInfo, args);
+                DictOfSharperDeviceInfo[args.Id] = deviceInfo;
+            }
         }
 
         private void Watcher_Added(DeviceWatcher sender, DeviceInformation args)
@@ -86,12 +92,19 @@ namespace SharperDevices
             // 3. Populate the SharperDeviceInfo fields.
 
             var deviceType = GetDeviceType(sender);
-            WriteLine($"Added {deviceType}");
-
             if(!DictOfSharperDeviceInfo.ContainsKey(args.Id))
             {
-                SharperDeviceInfo deviceInfo = new SharperDeviceInfo();
-                PopulateSharperDeviceInfo(deviceInfo, args, deviceType);
+                try
+                {
+                    SharperDeviceInfo deviceInfo = new SharperDeviceInfo();
+                    PopulateSharperDeviceInfo(deviceInfo, args, deviceType);
+                    DictOfSharperDeviceInfo[args.Id] = deviceInfo;
+                    WriteLine($"Added device: {args.Name} -- DeviceType: {deviceType}");
+                } catch (Exception ex)
+                {
+                    WriteLine($"Exception adding device: {args.Name} -- DeviceType: {deviceType}");
+                }
+
             }
         }
 
@@ -173,13 +186,31 @@ namespace SharperDevices
             deviceInfo.DeviceType = deviceType;
             deviceInfo.ID = args.Id;
             deviceInfo.Name = args.Name;
+            deviceInfo.IsEnabled = args.IsEnabled;
+            deviceInfo.IsDefault = args.IsDefault;
             if (args.Pairing != null)
             {
                 deviceInfo.IsPaired = args.Pairing.IsPaired;
                 deviceInfo.CanPair = args.Pairing.CanPair;
                 deviceInfo.ProtectionLevel = args.Pairing.ProtectionLevel;
             }
+            deviceInfo.Properties = args.Properties as Dictionary<string, object> ?? new Dictionary<string, object>();
             deviceInfo.Kind = args.Kind;
+        }
+
+        private void UpdateSharperDeviceInfo(SharperDeviceInfo deviceInfo, DeviceInformationUpdate args)
+        {
+            // 1. Populate device info, including type.
+            // 2. If this is not a wireless device, do not populate pairing info.
+
+            deviceInfo.ID = args.Id;
+            deviceInfo.Properties = args.Properties as Dictionary<string, object> ?? new Dictionary<string, object>();
+            deviceInfo.Kind = args.Kind;
+        }
+
+        public Dictionary<string, SharperDeviceInfo> GetListOfFoundDevices()
+        {
+            return DictOfSharperDeviceInfo;
         }
     }
 }
