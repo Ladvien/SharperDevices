@@ -9,6 +9,6 @@ namespace SharperDevices
 
     public class SharperDeviceWatcherInfo
     {
-        public WatcherSelectors WatcherType;
+        public SharperDevice.DeviceTypes WatcherType;
     }
 }

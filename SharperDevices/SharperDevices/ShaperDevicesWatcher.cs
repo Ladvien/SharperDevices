@@ -16,18 +16,27 @@ namespace SharperDevices
     {
         
         List<DeviceWatcher> ListOfActiveDeviceWatchers;
-        Dictionary<DeviceWatcher,WatcherSelectors> DictOfDeviceTypes;  
+        Dictionary<DeviceWatcher,SharperDevice.DeviceTypes> DictOfDeviceTypes;
 
-        //public string BluetoothLEAdvertisementSelector = BluetoothLEAdvertisement
+        Dictionary<string, SharperDeviceInfo> DictOfSharperDeviceInfo;
 
         public SharperDevicesWatcher()
         {
+            // 1. ListOfActiveDeviceWatchers holds references to all constructed watchers.
+            // 2. DictOfDeviceTypes allows the DeviceType to be tracked (e.g., BLE, Classic, Wifi, etc.)
+            // 3. DictOfSharperDeviceInfo allows device lookup based upon ID.
+
             ListOfActiveDeviceWatchers = new List<DeviceWatcher>();
-            DictOfDeviceTypes = new Dictionary<DeviceWatcher, WatcherSelectors>();
+            DictOfDeviceTypes = new Dictionary<DeviceWatcher, SharperDevice.DeviceTypes>();
+            DictOfSharperDeviceInfo = new Dictionary<string, SharperDeviceInfo>();
         }
 
-        public bool CreateWatcher(WatcherSelectors watcherType)
+        public bool CreateWatcher(SharperDevice.DeviceTypes watcherType)
         {
+            // 1. Create the watcher based on consumer choice.
+            // 2. If constructed, add to dictionary and events.
+            // 3. If creation was successful, return true.
+
             DeviceWatcher watcher = DeviceInformation.CreateWatcher(GetSelector(watcherType));
             if(watcher != null)
             {
@@ -44,8 +53,10 @@ namespace SharperDevices
             }
         }
 
-        public bool CreateWatchers(List<WatcherSelectors> watcherTypes)
+        public bool CreateWatchers(List<SharperDevice.DeviceTypes> watcherTypes)
         {
+            // 1. Create a list of watcher types based on consumer choice.
+
             foreach(var type in watcherTypes)
             {
                 CreateWatcher(type);
@@ -65,16 +76,29 @@ namespace SharperDevices
 
         private void Watcher_Updated(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            WriteLine(GetDeviceType(sender));
+            WriteLine($"Updated {GetDeviceType(sender)}");
         }
 
         private void Watcher_Added(DeviceWatcher sender, DeviceInformation args)
         {
-            WriteLine(GetDeviceType(sender));
+            // 1. Get SharperDeviceInfo based upon args.ID
+            // 2. If SharperDeviceInfo is null, create it.
+            // 3. Populate the SharperDeviceInfo fields.
+
+            var deviceType = GetDeviceType(sender);
+            WriteLine($"Added {deviceType}");
+
+            if(!DictOfSharperDeviceInfo.ContainsKey(args.Id))
+            {
+                SharperDeviceInfo deviceInfo = new SharperDeviceInfo();
+                PopulateSharperDeviceInfo(deviceInfo, args, deviceType);
+            }
         }
 
         public void Start()
         {
+            // 1. Start all created watchers.
+
             foreach(var watcher in ListOfActiveDeviceWatchers)
             {
                 watcher.Start();
@@ -83,6 +107,8 @@ namespace SharperDevices
 
         public void Stop()
         {
+            // 1. Stop all created watchers.
+
             foreach (var watcher in ListOfActiveDeviceWatchers)
             {
                 watcher.Stop();
@@ -104,37 +130,56 @@ namespace SharperDevices
             return new SharperDevice();
         }
 
-        public enum WatcherSelectors
+         public string GetSelector(SharperDevice.DeviceTypes selector)
         {
-            USBtoUART,
-            BluetoothClassic,
-            BluetoothLE,
-            WiFiDirect
-        }
+            // 1. Selector constructor.
 
-        public string GetSelector(WatcherSelectors selector)
-        {
             switch (selector)
             {
-                case WatcherSelectors.USBtoUART:
+                case SharperDevice.DeviceTypes.USBtoUART:
                     return SerialDevice.GetDeviceSelector();
                     break;
-                case WatcherSelectors.BluetoothClassic:
+                case SharperDevice.DeviceTypes.BluetoothClassic:
                     return BluetoothDevice.GetDeviceSelector();
                     break;
-                case WatcherSelectors.BluetoothLE:
+                case SharperDevice.DeviceTypes.BluetoothLE:
                     return BluetoothLEDevice.GetDeviceSelector();
-                case WatcherSelectors.WiFiDirect:
+                    break;
+                case SharperDevice.DeviceTypes.WiFiDirect:
                     return WiFiDirectDevice.GetDeviceSelector();
+                    break;
                 default:
                     return null;
                     break;
             }
         }
 
-        public WatcherSelectors GetDeviceType(DeviceWatcher deviceWatcher)
+        public SharperDevice.DeviceTypes GetDeviceType(DeviceWatcher deviceWatcher)
         {
+            // 1. Get device type based on watcher.
             return DictOfDeviceTypes[deviceWatcher];
+        }
+
+        public SharperDeviceInfo GetDeviceInfoByID(string ID)
+        {
+            return DictOfSharperDeviceInfo[ID];
+        }
+
+        private void PopulateSharperDeviceInfo(SharperDeviceInfo deviceInfo, DeviceInformation args, SharperDevice.DeviceTypes deviceType)
+        {
+            // 1. Populate device info, including type.
+            // 2. If this is not a wireless device, do not populate pairing info.
+
+            deviceInfo.DeviceType = deviceType;
+            deviceInfo.ID = args.Id;
+            deviceInfo.Name = args.Name;
+            if (args.Pairing != null)
+            {
+                deviceInfo.IsPaired = args.Pairing.IsPaired;
+                deviceInfo.CanPair = args.Pairing.CanPair;
+                deviceInfo.ProtectionLevel = args.Pairing.ProtectionLevel;
+            }
+            deviceInfo.Kind = args.Kind;
         }
     }
 }

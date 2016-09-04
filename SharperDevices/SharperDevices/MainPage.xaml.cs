@@ -39,11 +39,11 @@ namespace SharperDevices
             sdWatcher = new SharperDevicesWatcher();
             sdWatcherInfo = new SharperDeviceWatcherInfo();
 
-            List<SharperDevicesWatcher.WatcherSelectors> watcherTypes = new List<SharperDevicesWatcher.WatcherSelectors>();
-            watcherTypes.Add(SharperDevicesWatcher.WatcherSelectors.BluetoothLE);
-            watcherTypes.Add(SharperDevicesWatcher.WatcherSelectors.BluetoothLE);
-            watcherTypes.Add(SharperDevicesWatcher.WatcherSelectors.BluetoothClassic);
-            watcherTypes.Add(SharperDevicesWatcher.WatcherSelectors.USBtoUART);
+            List<SharperDevice.DeviceTypes> watcherTypes = new List<SharperDevice.DeviceTypes>();
+            watcherTypes.Add(SharperDevice.DeviceTypes.BluetoothLE);
+            watcherTypes.Add(SharperDevice.DeviceTypes.WiFiDirect);
+            watcherTypes.Add(SharperDevice.DeviceTypes.BluetoothClassic);
+            watcherTypes.Add(SharperDevice.DeviceTypes.USBtoUART);
             sdWatcher.CreateWatchers(watcherTypes);
             sdWatcher.Start();
         }

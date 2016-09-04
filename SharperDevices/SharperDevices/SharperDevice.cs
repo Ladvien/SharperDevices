@@ -8,6 +8,14 @@ namespace SharperDevices
 {
     public class SharperDevice
     {
+        public enum DeviceTypes
+        {
+            // 1. Supported device types.
 
+            USBtoUART,
+            BluetoothClassic,
+            BluetoothLE,
+            WiFiDirect
+        }
     }
 }
