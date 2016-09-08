@@ -38,7 +38,6 @@ namespace SharperDevices
             this.InitializeComponent();
 
             sdWatcher = new SharperDevicesWatcher();
-            sdWatcherInfo = new SharperDeviceWatcherInfo();
 
             // 1. Create a list of Watcher Types
             // 2. Have SharperDevice create watchers for list of device types.
@@ -49,7 +48,7 @@ namespace SharperDevices
             watcherTypes.Add(SharperDevice.DeviceTypes.WiFiDirect);
             watcherTypes.Add(SharperDevice.DeviceTypes.BluetoothClassic);
             watcherTypes.Add(SharperDevice.DeviceTypes.USBtoUART);
-            sdWatcher.CreateWatchers(watcherTypes);
+            sdWatcher.CreateWatchers(watcherTypes, 9000);
             sdWatcher.Start();
             Timer(19000);
             var dictOfFoundDevices = sdWatcher.GetListOfFoundDevices();

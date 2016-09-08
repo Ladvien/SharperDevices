@@ -10,5 +10,12 @@ namespace SharperDevices
     public class SharperDeviceWatcherInfo
     {
         public SharperDevice.DeviceTypes WatcherType;
+        public bool Continuous = false;
+        public bool IsRunning = false;
+
+        public SharperDeviceWatcherInfo(SharperDevice.DeviceTypes watcherType)
+        {
+            WatcherType = watcherType;
+        }
     }
 }

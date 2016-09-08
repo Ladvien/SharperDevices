@@ -9,16 +9,35 @@ using Windows.Devices.WiFiDirect;
 using Windows.Devices.SerialCommunication;
 using Windows.Devices.Bluetooth.Advertisement;
 using static System.Diagnostics.Debug;
+using System.Threading;
+
+namespace Extensions
+{
+
+    public static class ExtensionMethods
+    {
+        public static void ExtendedStop(this DeviceWatcher dw)
+        {
+            dw.Stop();
+            WriteLine("Stopped");
+        }
+    }
+}
 
 namespace SharperDevices
 {
+    using Extensions;
+
+
     public class SharperDevicesWatcher
     {
         
         List<DeviceWatcher> ListOfActiveDeviceWatchers;
-        Dictionary<DeviceWatcher,SharperDevice.DeviceTypes> DictOfDeviceTypes;
-
+        Dictionary<DeviceWatcher, SharperDeviceWatcherInfo> DictSharperDeviceWatcherInfo;
         Dictionary<string, SharperDeviceInfo> DictOfSharperDeviceInfo;
+
+        Timer WatcherRunTimer;
+        AutoResetEvent WatcherAutoResetEvent;
 
         public SharperDevicesWatcher()
         {
@@ -27,11 +46,11 @@ namespace SharperDevices
             // 3. DictOfSharperDeviceInfo allows device lookup based upon ID.
 
             ListOfActiveDeviceWatchers = new List<DeviceWatcher>();
-            DictOfDeviceTypes = new Dictionary<DeviceWatcher, SharperDevice.DeviceTypes>();
-            DictOfSharperDeviceInfo = new Dictionary<string, SharperDeviceInfo>();
+            DictSharperDeviceWatcherInfo = new Dictionary<DeviceWatcher, SharperDeviceWatcherInfo>();
+            DictOfSharperDeviceInfo = new Dictionary<string, SharperDeviceInfo>();      
         }
 
-        public bool CreateWatcher(SharperDevice.DeviceTypes watcherType)
+        public bool CreateWatcher(SharperDevice.DeviceTypes watcherType, Int32 watcherTimeout)
         {
             // 1. Create the watcher based on consumer choice.
             // 2. If constructed, add to dictionary and events.
@@ -41,11 +60,14 @@ namespace SharperDevices
             if(watcher != null)
             {
                 ListOfActiveDeviceWatchers.Add(watcher);
-                DictOfDeviceTypes[watcher] = watcherType;
+                SharperDeviceWatcherInfo watcherInfo = new SharperDeviceWatcherInfo(watcherType);
+                DictSharperDeviceWatcherInfo[watcher] = watcherInfo;
                 watcher.Added += Watcher_Added;
                 watcher.Updated += Watcher_Updated;
                 watcher.Stopped += Watcher_Stopped;
                 watcher.Removed += Watcher_Removed;
+                watcher.EnumerationCompleted += Watcher_EnumerationCompleted;
+                WatcherRunTimer = new Timer(WatcherTimerExpired, null, watcherTimeout, Timeout.Infinite);
                 return true;
             } else
             {
@@ -53,30 +75,68 @@ namespace SharperDevices
             }
         }
 
-        public bool CreateWatchers(List<SharperDevice.DeviceTypes> watcherTypes)
+        public bool CreateWatchers(List<SharperDevice.DeviceTypes> watcherTypes, Int32 watcherTimeout)
         {
             // 1. Create a list of watcher types based on consumer choice.
 
-            foreach(var type in watcherTypes)
+            foreach (var type in watcherTypes)
             {
-                CreateWatcher(type);
+                CreateWatcher(type, watcherTimeout);
             }
             return true;
         }
 
+        private void WatcherTimerExpired(object obj)
+        {
+            foreach(var watcher in ListOfActiveDeviceWatchers)
+            {
+                if(watcher != null)
+                {
+                    switch (watcher.Status)
+                    {
+                        case DeviceWatcherStatus.Aborted:
+                            break;
+                        case DeviceWatcherStatus.Created:
+                            break;
+                        case DeviceWatcherStatus.EnumerationCompleted:
+                            watcher.ExtendedStop();
+                            break;
+                        case DeviceWatcherStatus.Started:
+                            break;
+                        case DeviceWatcherStatus.Stopped:
+                            break;
+                        case DeviceWatcherStatus.Stopping:
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+            }
+        }
+
+        private void Watcher_EnumerationCompleted(DeviceWatcher sender, object args)
+        {
+            
+        }
+
         private void Watcher_Removed(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            WriteLine(GetDeviceType(sender));
+            WriteLine(GetSharperDeviceWatcherInfo(sender).WatcherType);
         }
 
         private void Watcher_Stopped(DeviceWatcher sender, object args)
         {
-            WriteLine(GetDeviceType(sender));
+            SharperDeviceWatcherInfo senderInfo = GetSharperDeviceWatcherInfo(sender);
+            if(true == senderInfo.Continuous)
+            {
+                sender.Start();
+            }
         }
 
         private void Watcher_Updated(DeviceWatcher sender, DeviceInformationUpdate args)
         {
-            var deviceType = GetDeviceType(sender);
+            var deviceType = GetSharperDeviceWatcherInfo(sender);
             if (DictOfSharperDeviceInfo.ContainsKey(args.Id))
             {
                 SharperDeviceInfo deviceInfo = new SharperDeviceInfo();
@@ -91,18 +151,23 @@ namespace SharperDevices
             // 2. If SharperDeviceInfo is null, create it.
             // 3. Populate the SharperDeviceInfo fields.
 
-            var deviceType = GetDeviceType(sender);
+            SharperDeviceInfo deviceInfo = new SharperDeviceInfo();
+            var deviceType = GetSharperDeviceWatcherInfo(sender).WatcherType;
             if(!DictOfSharperDeviceInfo.ContainsKey(args.Id))
             {
                 try
                 {
-                    SharperDeviceInfo deviceInfo = new SharperDeviceInfo();
                     PopulateSharperDeviceInfo(deviceInfo, args, deviceType);
                     DictOfSharperDeviceInfo[args.Id] = deviceInfo;
                     WriteLine($"Added device: {args.Name} -- DeviceType: {deviceType}");
                 } catch (Exception ex)
                 {
-                    WriteLine($"Exception adding device: {args.Name} -- DeviceType: {deviceType}");
+                    WriteLine($"Exception adding device: {args.Name} -- DeviceType: {deviceType}  Exception: {ex.Message}");
+                    if (DictOfSharperDeviceInfo.ContainsKey(args.Id))
+                    {
+                        DictOfSharperDeviceInfo.Remove(args.Id);
+                    }
+                    
                 }
 
             }
@@ -124,7 +189,7 @@ namespace SharperDevices
 
             foreach (var watcher in ListOfActiveDeviceWatchers)
             {
-                watcher.Stop();
+                watcher.ExtendedStop();
             }
         }
 
@@ -167,10 +232,10 @@ namespace SharperDevices
             }
         }
 
-        public SharperDevice.DeviceTypes GetDeviceType(DeviceWatcher deviceWatcher)
+        public SharperDeviceWatcherInfo GetSharperDeviceWatcherInfo(DeviceWatcher deviceWatcher)
         {
             // 1. Get device type based on watcher.
-            return DictOfDeviceTypes[deviceWatcher];
+            return DictSharperDeviceWatcherInfo[deviceWatcher];
         }
 
         public SharperDeviceInfo GetDeviceInfoByID(string ID)
@@ -182,20 +247,26 @@ namespace SharperDevices
         {
             // 1. Populate device info, including type.
             // 2. If this is not a wireless device, do not populate pairing info.
-
-            deviceInfo.DeviceType = deviceType;
-            deviceInfo.ID = args.Id;
-            deviceInfo.Name = args.Name;
-            deviceInfo.IsEnabled = args.IsEnabled;
-            deviceInfo.IsDefault = args.IsDefault;
-            if (args.Pairing != null)
+            try
             {
-                deviceInfo.IsPaired = args.Pairing.IsPaired;
-                deviceInfo.CanPair = args.Pairing.CanPair;
-                deviceInfo.ProtectionLevel = args.Pairing.ProtectionLevel;
+                deviceInfo.DeviceType = deviceType;
+                deviceInfo.ID = args.Id;
+                deviceInfo.Name = args.Name;
+                deviceInfo.IsEnabled = args.IsEnabled;
+                deviceInfo.IsDefault = args.IsDefault;
+                if (args.Pairing != null)
+                {
+                    deviceInfo.IsPaired = args.Pairing.IsPaired;
+                    deviceInfo.CanPair = args.Pairing.CanPair;
+                    deviceInfo.ProtectionLevel = args.Pairing.ProtectionLevel;
+                }
+                deviceInfo.Properties = args.Properties as Dictionary<string, object> ?? new Dictionary<string, object>();
+                deviceInfo.Kind = args.Kind;
+            } catch (Exception ex)
+            {
+                WriteLine($"Exception adding device: {args.Name} -- DeviceType: {deviceType}");
             }
-            deviceInfo.Properties = args.Properties as Dictionary<string, object> ?? new Dictionary<string, object>();
-            deviceInfo.Kind = args.Kind;
+
         }
 
         private void UpdateSharperDeviceInfo(SharperDeviceInfo deviceInfo, DeviceInformationUpdate args)
